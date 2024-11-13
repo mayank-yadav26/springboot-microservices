@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgres-order
+  name: postgres-order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-order
+  template:
+    metadata:
+      labels:
+        app: postgres-order
+    spec:
+      containers:
+      - image: postgres
+        name: postgres
+        ports:
+        - containerPort: 5431
+        env:
+        - name: POSTGRES_DB
+          value: "order-service"
+        - name: POSTGRES_USER
+          value: "root"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    labels:
+        app: postgres-order
+    name: postgres-order
+spec:
+    ports:
+        -port: 5431
+        protocol: TCP
+        targetPort: 5431
+    selector:
+        app: postgres-order
+    type: ClusterIP
+---
