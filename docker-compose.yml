@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  ## MySQL Docker Compose Config
+  ## Postgres Docker Compose Config
   postgres-order:
     container_name: postgres-order
     image: postgres

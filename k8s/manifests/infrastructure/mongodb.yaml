@@ -1,0 +1,64 @@
+apiVersion : apps/v1
+kind : Deployment
+metadata :
+  labels :
+    app : mongodb
+  name : mongodb
+spec :
+  replicas : 1
+  selector :
+    matchLabels :
+      app : mongodb
+  template :
+    metadata :
+      labels :
+        app : mongodb
+    spec :
+      containers :
+      - image : mongo
+        name : mongo
+        ports :
+        - containerPort : 27017
+        volumeMounts :
+        - mountPath : /data/db
+          name : mongodb-storage
+      volumes :
+      - name : mongodb-storage
+        persistentVolumeClaim :
+          claimName : mongodb-pvc
+---
+apiVersion : v1
+kind : Service
+metadata :
+  name : mongodb
+spec :
+  selector :
+    app : mongodb
+  ports :
+  - protocol : TCP
+    port : 27017
+    targetPort : 27017
+  type : ClusterIP
+---
+apiVersion : v1
+kind : PersistentVolumeClaim
+metadata :
+  name : mongodb-pvc
+spec :
+  accessModes :
+  - ReadWriteOnce
+  resources :
+    requests :
+      storage : 1Gi
+---
+apiVersion : v1
+kind : PersistentVolume
+metadata :
+  name : mongodb-pv
+spec :
+  capacity :
+    storage : 1Gi
+  accessModes :
+  - ReadWriteOnce
+  hostPath :
+    path : /data/mongodb

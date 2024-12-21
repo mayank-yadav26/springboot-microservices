@@ -18,26 +18,66 @@ spec:
       - image: postgres
         name: postgres
         ports:
-        - containerPort: 5431
+        - containerPort: 5432
         env:
         - name: POSTGRES_DB
           value: "order-service"
         - name: POSTGRES_USER
           value: "root"
-
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_PASS
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-storage
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-order-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-    labels:
-        app: postgres-order
-    name: postgres-order
+  name: postgres-order
 spec:
-    ports:
-        -port: 5431
-        protocol: TCP
-        targetPort: 5431
-    selector:
-        app: postgres-order
-    type: ClusterIP
+  selector:
+    app: postgres-order
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
+  type: ClusterIP
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secrets
+data:
+  POSTGRES_PASS: cm9vdA==
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-order-pv
+spec:
+  storageClassName: "standard"
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/postgres-order
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-order-pvc
+spec:
+  storageClassName: "standard"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
