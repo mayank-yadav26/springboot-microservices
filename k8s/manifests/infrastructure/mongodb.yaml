@@ -15,7 +15,7 @@ spec :
         app : mongodb
     spec :
       containers :
-      - image : mongo
+      - image : mongo:4.4.14-rc0-focal
         name : mongo
         ports :
         - containerPort : 27017
@@ -62,3 +62,4 @@ spec :
   - ReadWriteOnce
   hostPath :
     path : /data/mongodb
+    type: DirectoryOrCreate
