@@ -2,8 +2,6 @@ package com.mayanktech.inventoryservice.controller;
 
 import java.util.List;
 
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,8 +10,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mayanktech.inventoryservice.dto.InventoryResponse;
-import com.mayanktech.inventoryservice.modal.Inventory;
-import com.mayanktech.inventoryservice.repository.InventoryRepository;
 import com.mayanktech.inventoryservice.service.InventoryService;
 
 import lombok.RequiredArgsConstructor;
@@ -35,21 +31,5 @@ public class InventoryController {
 	@ResponseStatus(HttpStatus.OK)
 	public List<InventoryResponse> isInStock(@RequestParam List<String> skuCodeList) {
 		return inventoryService.isInStock(skuCodeList);
-	}
-	
-	@Bean
-	public CommandLineRunner loadData(InventoryRepository inventoryRepository) {
-		return args -> {
-			Inventory inventory = new Inventory();
-			inventory.setSkuCode("iphone 13");
-			inventory.setQuantity(100);
-			
-			Inventory inventory1 = new Inventory();
-			inventory1.setSkuCode("iphone 12");
-			inventory1.setQuantity(0);
-			
-			inventoryRepository.save(inventory);
-			inventoryRepository.save(inventory1);
-		};
 	}
 }
