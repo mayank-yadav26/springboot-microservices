@@ -45,6 +45,7 @@ services:
     volumes:
       - ./mongo-data:/data/db
 
+  ## Kafka Docker Compose Config
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
