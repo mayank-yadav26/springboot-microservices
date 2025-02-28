@@ -26,7 +26,7 @@ public class OrderService {
 
 	private final OrderRepository orderRepository;
 	private final WebClient.Builder webClientBuilder;
-	private final KafkaTemplate<String,OrderPlacedEvent> kafkaTemplate;
+	private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
 	public String placeOrder(OrderRequest orderRequest) {
 		Order order = new Order();
@@ -45,15 +45,19 @@ public class OrderService {
 						uriBuilder -> uriBuilder.queryParam("skuCodeList", skuCodesList).build())
 				.retrieve().bodyToMono(InventoryResponse[].class).block();
 
+		if (inventoryResponseArray.length == 0) {
+			return "Product is not in stock, please try again later.";
+		}
+		
 		boolean allProductsInStock = Arrays.stream(inventoryResponseArray)
 				.allMatch(inventoryResponse -> inventoryResponse.getIsInStock());
 
 		if (allProductsInStock) {
 			orderRepository.save(order);
-			kafkaTemplate.send("notificationTopic",new OrderPlacedEvent(order.getOrderNumber()));
+			kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber()));
 			return "Order Placed Successfully!";
 		} else {
-			throw new IllegalArgumentException("Product is not in stock, please try again later.");
+			return "Product is not in stock, please try again later.";
 		}
 	}
 
